@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "601047830635",
+    "firebase_url": "https://goldrush-a8a38.firebaseio.com",
+    "project_id": "goldrush-a8a38",
+    "storage_bucket": "goldrush-a8a38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601047830635:android:5837f24b0463d71458e12e",
+        "android_client_info": {
+          "package_name": "com.example.goldrush"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "601047830635-52n63te91ndi0t387ecun5pf9hg1kjd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY0yN9uC1QA4h8srki0mJnUcD4br44euI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601047830635-52n63te91ndi0t387ecun5pf9hg1kjd2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

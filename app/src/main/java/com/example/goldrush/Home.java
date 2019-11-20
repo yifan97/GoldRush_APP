@@ -1,14 +1,35 @@
 package com.example.goldrush;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class Home extends AppCompatActivity {
+
+
+
+    static final int GOOGLE_SIGN = 123;
+    FirebaseAuth mAuth;
+    GoogleSignInClient mGoogleSignInClient;
+
 
     MediaPlayer musicPlayer;
     boolean soundOn = true;
@@ -19,6 +40,53 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.home);
         musicPlayer = MediaPlayer.create(getApplicationContext(), R.raw.endless_road);
         musicPlayer.start();
+
+        mAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.
+                Builder()
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode  == GOOGLE_SIGN){
+            Task<GoogleSignInAccount> task = GoogleSignIn
+                    .getSignedInAccountFromIntent(data);
+
+            try{
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                        if(account != null){
+                            firebaseAuthWithoogle(account);
+                        }
+            }catch (ApiException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void firebaseAuthWithoogle(GoogleSignInAccount account) {
+        Log.d("TAG", "FIREBASEaUTHwithGoogle: " + account.getId());
+        AuthCredential credential = GoogleAuthProvider
+                .getCredential(account.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task ->{
+                    if(task.isSuccessful()){
+                        Log.d("TAG", "signin success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        startActivity(new Intent(this, Game.class));
+                    }else{
+                        Log.d("TAG", "signin failure", task.getException());
+                        Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     // When the user clicks a button on the homepage screen
@@ -53,5 +121,13 @@ public class Home extends AppCompatActivity {
             Intent intent = new Intent(this, Login.class);
             startActivity(intent);
         }
+
+        // google login
+        else if (view.getId() == R.id.googlelogin){
+            // Configure Google Sign In
+            Intent signIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signIntent, GOOGLE_SIGN);
+        }
     }
+
 }
