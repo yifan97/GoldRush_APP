@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -64,7 +65,8 @@ public class Home extends AppCompatActivity {
             try{
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                         if(account != null){
-                            firebaseAuthWithoogle(account);
+                            Toast.makeText(this, "email is: " + account.getEmail(), Toast.LENGTH_SHORT).show();
+                            firebaseAuthWithGoogle(account);
                         }
             }catch (ApiException e){
                 e.printStackTrace();
@@ -72,7 +74,12 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    private void firebaseAuthWithoogle(GoogleSignInAccount account) {
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
         Log.d("TAG", "FIREBASEaUTHwithGoogle: " + account.getId());
         AuthCredential credential = GoogleAuthProvider
                 .getCredential(account.getIdToken(), null);
@@ -81,12 +88,24 @@ public class Home extends AppCompatActivity {
                     if(task.isSuccessful()){
                         Log.d("TAG", "signin success");
                         FirebaseUser user = mAuth.getCurrentUser();
-                        startActivity(new Intent(this, Game.class));
+//                        startActivity(new Intent(this, Game.class));
+                        updateUI(true);
                     }else{
                         Log.d("TAG", "signin failure", task.getException());
                         Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void updateUI(boolean b) {
+        ImageView googlelogin_view = findViewById(R.id.googlelogin);
+        ImageView login_view =  findViewById(R.id.login);
+        if (b){
+            //sign in, change login to play, change googlelogin to googlelogout
+        }else{
+            googlelogin_view.setImageResource(R.drawable.googlelogin);
+            login_view.setImageResource(R.drawable.loginbtn);
+        }
     }
 
     // When the user clicks a button on the homepage screen
@@ -118,8 +137,11 @@ public class Home extends AppCompatActivity {
         }
         // Login button
         else if (view.getId() == R.id.login) {
-            Intent intent = new Intent(this, Login.class);
-            startActivity(intent);
+//            Intent intent = new Intent(this, Login.class);
+//            startActivity(intent);
+            startActivity(new Intent(this, GameActivity.class));
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(this, "who is on now: ", Toast.LENGTH_SHORT).show();
         }
 
         // google login
