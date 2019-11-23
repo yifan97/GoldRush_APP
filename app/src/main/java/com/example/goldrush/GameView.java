@@ -1,12 +1,17 @@
 package com.example.goldrush;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -18,10 +23,11 @@ public class GameView extends SurfaceView implements Runnable {
     public static float screenRatioX, screenRatioY;
     private Background bg1, bg2;
     private Paint paint;
-    private Object objects[];
+    private Object[] objects;
     private boolean isPlaying, isGameOver = false;
     private Thread thread;
     private Cat cat;
+    private int score = 0;
 
     public GameView(GameActivity activity, int screenX, int screenY) {
         super(activity);
@@ -55,8 +61,20 @@ public class GameView extends SurfaceView implements Runnable {
 
         random = new Random();
 
+        InitiateObjects();
 
+    }
 
+    private void InitiateObjects() {
+        objects = new Object[8];
+        objects[0] = new Object(0, getResources());
+        objects[1] = new Object(0, getResources());
+        objects[2] = new Object(0, getResources());
+        objects[3] = new Object(5, getResources());
+        objects[4] = new Object(1, getResources());
+        objects[5] = new Object(2, getResources());
+        objects[6] = new Object(3, getResources());
+        objects[7] = new Object(4, getResources());
     }
 
     @Override
@@ -74,8 +92,8 @@ public class GameView extends SurfaceView implements Runnable {
 
     private void update() {
 
-        bg1.x -= 10 * screenRatioX;
-        bg2.x -= 10 * screenRatioX;
+        bg1.x -= 30 * screenRatioX;
+        bg2.x -= 30 * screenRatioX;
 
         if(bg1.x + bg2.background.getWidth() < 0){
             bg1.x = screenX;
@@ -85,22 +103,65 @@ public class GameView extends SurfaceView implements Runnable {
             bg2.x = screenX;
         }
 
-        if(cat.isGoingUp){
-            cat.y -= 30 * screenRatioY;
-        }else{
-            cat.y += 30 * screenRatioY;
-        }
-
-        if(cat.y >= screenY - cat.height){
-            cat.y = 0;
-        }
-
         if(cat.y >= screenY - cat.height){
             cat.y = screenY - cat.height;
         }
 
+        if(cat.y <= 0){
+            cat.y = 0;
+        }
 
 
+        for(Object object : objects){
+            Log.v("TAG", "object is: " + object.getType() + " x is: " + object.x + " and y is: " + object.y);
+            object.x -= object.speed;
+
+            if(object.x + object.width < 0){
+
+                int bound = (int) (30 * screenRatioX);
+                object.speed = random.nextInt(bound);
+
+                if(object.speed < 10 * screenRatioX){
+                    object.speed = (int) (10 * screenRatioX);
+                }
+
+                object.x = screenX;
+                object.y = random.nextInt(screenX-object.height);
+            }
+
+
+            if(Rect.intersects(cat.getCollisionShape(), object.getCollisionShape())){
+                object.x -= 700;
+                int type = object.getType();
+                if(type == 0){
+                    score += 0;
+                }else if(type == 1 || type == 2 || type == 3){
+                    isGameOver = true;
+                    return;
+                }else{
+                    score += 30;
+                }
+            }
+        }
+
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch(event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if(event.getY() < screenY / 2){
+                    cat.y -= 60 * screenRatioY;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                if(event.getY() > screenY / 2){
+                    cat.y += 60 * screenRatioY;
+                }
+                break;
+        }
+        return true;
     }
 
     private void draw() {
@@ -110,18 +171,39 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(bg1.background, bg1.x, bg1.y, paint);
             canvas.drawBitmap(bg2.background, bg2.x, bg2.y, paint);
 
+            for (Object object: objects){
+                Log.v("TAG", "x is: " + object.x);
+                canvas.drawBitmap(object.getObject(), object.x, object.y, paint);
+            }
+
 //            canvas.drawText();
 
             if(isGameOver){
                 isPlaying = false;
                 canvas.drawBitmap(cat.getLose(), cat.x, cat.y, paint);
                 getHolder().unlockCanvasAndPost(canvas);
+                saveHighestScore();
+                waitBeforeExiting();
                 return;
             }
-
             canvas.drawBitmap(cat.getCat(), cat.x, cat.y, paint);
 
             getHolder().unlockCanvasAndPost(canvas);
+        }
+
+    }
+
+    private void saveHighestScore() {
+    }
+
+    private void waitBeforeExiting() {
+
+        try{
+            Thread.sleep(3000);
+            activity.startActivity(new Intent(activity, Home.class));
+            activity.finish();
+        }catch(InterruptedException e){
+            e.printStackTrace();
         }
 
     }

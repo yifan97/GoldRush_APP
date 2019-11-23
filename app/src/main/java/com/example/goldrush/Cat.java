@@ -11,9 +11,10 @@ import static com.example.goldrush.GameView.screenRatioY;
 public class Cat {
 
     boolean isGoingUp = false;
-    int x, y, width, height, wingCounter=0;
+    int x, y, width, height, runCounter=0;
     Bitmap cat1, cat2, cat3, cat4, lose;
     private GameView gameview;
+
 
     Cat(GameView gameview, int screenY, Resources res){
         this.gameview = gameview;
@@ -26,8 +27,8 @@ public class Cat {
         width = cat1.getWidth();
         height = cat1.getHeight();
 
-        width /= 4;
-        height /= 4;
+        width /= 5;
+        height /= 5;
 
         width = (int) (width * screenRatioX);
         height = (int) (height * screenRatioY);
@@ -46,7 +47,21 @@ public class Cat {
     }
 
     Bitmap getCat(){
-        return cat4;
+
+        switch (runCounter){
+            case 0:
+                runCounter++;
+                return cat1;
+            case 2:
+                runCounter++;
+                return cat2;
+            case 3:
+                runCounter++;
+                return cat3;
+            default:
+                runCounter = 0;
+                return cat4;
+        }
     }
 
     Rect getCollisionShape(){
