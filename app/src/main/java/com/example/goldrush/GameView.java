@@ -66,15 +66,14 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void InitiateObjects() {
-        objects = new Object[8];
+        objects = new Object[4];
         objects[0] = new Object(0, getResources());
         objects[1] = new Object(0, getResources());
-        objects[2] = new Object(0, getResources());
-        objects[3] = new Object(5, getResources());
-        objects[4] = new Object(1, getResources());
-        objects[5] = new Object(2, getResources());
-        objects[6] = new Object(3, getResources());
-        objects[7] = new Object(4, getResources());
+
+        int obstacle_picker = (int) Math.random()*3+1;
+        int bonus_picker = (int) Math.random()*2 + 4;
+        objects[2] = new Object(obstacle_picker, getResources());
+        objects[3] = new Object(bonus_picker, getResources());
     }
 
     @Override
@@ -113,8 +112,10 @@ public class GameView extends SurfaceView implements Runnable {
 
 
         for(Object object : objects){
-            Log.v("TAG", "object is: " + object.getType() + " x is: " + object.x + " and y is: " + object.y);
             object.x -= object.speed;
+            Log.v("TAG", "object x is: " + object.x);
+            if(object.y + object.height > screenY)
+                object.y = screenY-object.height;
 
             if(object.x + object.width < 0){
 
@@ -172,7 +173,6 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(bg2.background, bg2.x, bg2.y, paint);
 
             for (Object object: objects){
-                Log.v("TAG", "x is: " + object.x);
                 canvas.drawBitmap(object.getObject(), object.x, object.y, paint);
             }
 

@@ -1,5 +1,6 @@
 package com.example.goldrush;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -139,9 +141,18 @@ public class Home extends AppCompatActivity {
         else if (view.getId() == R.id.login) {
 //            Intent intent = new Intent(this, Login.class);
 //            startActivity(intent);
-            startActivity(new Intent(this, GameActivity.class));
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(this, "who is on now: ", Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(this, GameActivity.class));
+            // Firebase sign out
+            mAuth.signOut();
+
+            // Google sign out
+            mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                    new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            return;
+                        }
+                    });
         }
 
         // google login

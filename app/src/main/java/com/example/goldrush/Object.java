@@ -10,7 +10,7 @@ import static com.example.goldrush.GameView.screenRatioY;
 
 public class Object {
 
-    public int speed = 50;
+    public int speed = 20;
     private int type;
     int x = 0, y, width, height;
     Resources res;
@@ -27,13 +27,13 @@ public class Object {
             case 0:  //gold
                 return getGoldBitmap();
             case 1:  //obstacle1
-                return getbstacleBitmap(1);
+                return getobstacleBitmap(1);
             case 2:  //obstacle2
-                return getbstacleBitmap(2);
+                return getobstacleBitmap(2);
             case 3:  //obstacle3
-                return getbstacleBitmap(3);
+                return getobstacleBitmap(3);
             case 4:  //bonus1
-                return getbstacleBitmap(4);
+                return getBonusBitmap(4);
             default:  //bonus2
                 return getBonusBitmap(type);
         }
@@ -60,7 +60,7 @@ public class Object {
         return type == 4? bonus1 : bonus2;
     }
 
-    private Bitmap getbstacleBitmap(int type) {
+    private Bitmap getobstacleBitmap(int type) {
         Bitmap obstacle1 = BitmapFactory.decodeResource(res, R.drawable.obstacle1);
         Bitmap obstacle2 = BitmapFactory.decodeResource(res, R.drawable.obstacle2);
         Bitmap obstacle3 = BitmapFactory.decodeResource(res, R.drawable.obstacle3);
