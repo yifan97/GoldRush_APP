@@ -47,11 +47,6 @@ public class Login extends AppCompatActivity {
                 invalid.setText("Invalid password");
                 invalid.setVisibility(View.VISIBLE);
             }
-            else {
-                invalid.setVisibility(View.INVISIBLE);
-                Intent intent = new Intent(this, Game.class);
-                startActivity(intent);
-            }
         }
         // Sign up button
         else if (view.getId() == R.id.signup) {

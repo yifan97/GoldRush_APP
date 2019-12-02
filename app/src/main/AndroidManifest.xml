@@ -11,8 +11,8 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".Home"
-                  android:screenOrientation="portrait"
-                  android:configChanges="orientation|keyboardHidden">
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -20,24 +20,21 @@
         </activity>
 
         <activity android:name=".Setting"
-                  android:screenOrientation="portrait"
-                  android:configChanges="orientation|keyboardHidden"/>
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"/>
 
         <activity android:name=".Login"
-                  android:screenOrientation="portrait"
-                  android:configChanges="orientation|keyboardHidden"/>
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"/>
 
         <activity android:name=".Signup"
-                  android:screenOrientation="portrait"
-                  android:configChanges="orientation|keyboardHidden"/>
-
-        <activity android:name=".Game"
-                  android:screenOrientation="landscape"
-                  android:configChanges="orientation|keyboardHidden"/>
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"/>
 
         <activity android:name=".GameActivity"
             android:screenOrientation="landscape"/>
 
+        <service android:name=".Music"/>
 
         <meta-data
             android:name="preloaded_fonts"

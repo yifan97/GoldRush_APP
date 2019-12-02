@@ -10,7 +10,7 @@ import static com.example.goldrush.GameView.screenRatioY;
 
 public class Object {
 
-    public int speed = 20;
+    public int speed = 1;
     private int type;
     int x = 0, y, width, height;
     Resources res;

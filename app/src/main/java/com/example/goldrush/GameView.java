@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,13 +28,21 @@ public class GameView extends SurfaceView implements Runnable {
     private boolean isPlaying, isGameOver = false;
     private Thread thread;
     private Cat cat;
+    public Context context;
+    public MediaPlayer collect;
+    public MediaPlayer lose;
     private int score = 0;
 
-    public GameView(GameActivity activity, int screenX, int screenY) {
+    public GameView(GameActivity activity, int screenX, int screenY, Context context) {
         super(activity);
 
         this.activity = activity;
+        this.context = context;
 
+        collect = MediaPlayer.create(this.context, R.raw.collect);
+        collect.setVolume(60, 60);
+        lose = MediaPlayer.create(this.context, R.raw.lose);
+        lose.setVolume(60, 60);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             //sound pool
         }else{
@@ -135,12 +144,15 @@ public class GameView extends SurfaceView implements Runnable {
                 object.x -= 700;
                 int type = object.getType();
                 if(type == 0){
-                    score += 0;
+                    score += 10;
+                    collect.start();
                 }else if(type == 1 || type == 2 || type == 3){
                     isGameOver = true;
+                    lose.start();
                     return;
                 }else{
                     score += 30;
+                    collect.start();
                 }
             }
         }
