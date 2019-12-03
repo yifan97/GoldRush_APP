@@ -1,12 +1,17 @@
 package com.example.goldrush;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +37,8 @@ public class GameView extends SurfaceView implements Runnable {
     public MediaPlayer collect;
     public MediaPlayer lose;
     private int score = 0;
+    DBHelper mDatabase;
+    String user_name = "";
 
     public GameView(GameActivity activity, int screenX, int screenY, Context context) {
         super(activity);
@@ -72,17 +79,19 @@ public class GameView extends SurfaceView implements Runnable {
 
         InitiateObjects();
 
+        mDatabase = new DBHelper(getContext());
+
     }
 
     private void InitiateObjects() {
-        objects = new Object[4];
+        objects = new Object[7];
         objects[0] = new Object(0, getResources());
         objects[1] = new Object(0, getResources());
-
-        int obstacle_picker = (int) Math.random()*3+1;
-        int bonus_picker = (int) Math.random()*2 + 4;
-        objects[2] = new Object(obstacle_picker, getResources());
-        objects[3] = new Object(bonus_picker, getResources());
+        objects[2] = new Object(1, getResources());
+        objects[3] = new Object(2, getResources());
+        objects[4] = new Object(3, getResources());
+        objects[5] = new Object(4, getResources());
+        objects[6] = new Object(5, getResources());
     }
 
     @Override
@@ -122,7 +131,6 @@ public class GameView extends SurfaceView implements Runnable {
 
         for(Object object : objects){
             object.x -= object.speed;
-            Log.v("TAG", "object x is: " + object.x);
             if(object.y + object.height > screenY)
                 object.y = screenY-object.height;
 
@@ -196,6 +204,8 @@ public class GameView extends SurfaceView implements Runnable {
                 getHolder().unlockCanvasAndPost(canvas);
                 saveHighestScore();
                 waitBeforeExiting();
+                user_name = GameActivity.user_name;
+                new Joiner.execute();
                 return;
             }
             canvas.drawBitmap(cat.getCat(), cat.x, cat.y, paint);
@@ -205,7 +215,43 @@ public class GameView extends SurfaceView implements Runnable {
 
     }
 
+    private class Joiner extends AsyncTask<Void, Void, Cursor>{
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+
+            ContentValues score_content = new ContentValues();
+
+            if (cursor == null){  // no data for this user
+                score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
+                score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
+            }else{ // exist data for this user, store higest score
+                int highest_score = Integer.parseInt(cursor.getColumnName(cursor.getColumnCount()-1));
+                if(highest_score < score){
+                    score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
+                    score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
+                }
+            }
+        }
+
+        @Override
+        protected Cursor doInBackground(Void... voids) {
+            SQLiteDatabase db = mDatabase.getReadableDatabase();
+            String sql = "SELECT * FROM " + UsersContract.UserTABLE.TABLE_NAME
+                    + " WHERE " + UsersContract.UserTABLE.USER_NAME + " == "
+                    + user_name;
+            return db.rawQuery(sql, null);
+        }
+    }
+
     private void saveHighestScore() {
+        // first get data from database
+
+
+        ContentValues higest_score = new ContentValues();
+
+        higest_score.put(UsersContract.UserTABLE.USER_NAME, user_name);
+        higest_score.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
     }
 
     private void waitBeforeExiting() {

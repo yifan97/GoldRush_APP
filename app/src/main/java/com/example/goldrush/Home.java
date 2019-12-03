@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ public class Home extends AppCompatActivity {
     //    MediaPlayer musicPlayer;
     boolean soundOn = true;
     public ImageButton music;
+    String user_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,8 @@ public class Home extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+
+
     }
 
     @Override
@@ -72,7 +76,7 @@ public class Home extends AppCompatActivity {
             try{
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 if(account != null){
-                    Toast.makeText(this, "email is: " + account.getEmail(), Toast.LENGTH_SHORT).show();
+                    user_name = account.getEmail();
                     firebaseAuthWithGoogle(account);
                 }
             }catch (ApiException e){
@@ -146,8 +150,9 @@ public class Home extends AppCompatActivity {
         }
         // play button
         else if (view.getId() == R.id.play) {
-
-            startActivity(new Intent(this, GameActivity.class));
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra("user_name", user_name);
+            startActivity(intent);
 
             // Firebase sign out
             mAuth.signOut();
