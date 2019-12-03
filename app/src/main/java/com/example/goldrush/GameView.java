@@ -218,9 +218,18 @@ public class GameView extends SurfaceView implements Runnable {
         user_name = GameActivity.user_name;
 
         SQLiteDatabase db = mDatabase.getReadableDatabase();
-        String sql = "SELECT * FROM " + UsersContract.UserTABLE.TABLE_NAME
-                + " WHERE " + UsersContract.UserTABLE.USER_NAME
-                + " = " + user_name;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM");
+        sb.append(UsersContract.UserTABLE.TABLE_NAME);
+        sb.append(" WHERE ");
+        sb.append(UsersContract.UserTABLE.USER_NAME);
+        sb.append(" = ");
+        sb.append(user_name);
+
+
+        String sql = sb.toString();
+
 
         Cursor cursor = db.rawQuery(sql, null);
         ContentValues score_content = new ContentValues();
