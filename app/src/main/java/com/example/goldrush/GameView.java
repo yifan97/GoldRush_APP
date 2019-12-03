@@ -204,8 +204,7 @@ public class GameView extends SurfaceView implements Runnable {
                 getHolder().unlockCanvasAndPost(canvas);
                 saveHighestScore();
                 waitBeforeExiting();
-                user_name = GameActivity.user_name;
-                new Joiner.execute();
+                saveHighestScore();
                 return;
             }
             canvas.drawBitmap(cat.getCat(), cat.x, cat.y, paint);
@@ -215,37 +214,28 @@ public class GameView extends SurfaceView implements Runnable {
 
     }
 
-    private class Joiner extends AsyncTask<Void, Void, Cursor>{
+    private void saveHighestScore() {
+        user_name = GameActivity.user_name;
 
-        @Override
-        protected void onPostExecute(Cursor cursor) {
+        SQLiteDatabase db = mDatabase.getReadableDatabase();
+        String sql = "SELECT * FROM " + UsersContract.UserTABLE.TABLE_NAME
+                + " WHERE " + UsersContract.UserTABLE.USER_NAME
+                + " = " + user_name;
 
-            ContentValues score_content = new ContentValues();
+        Cursor cursor = db.rawQuery(sql, null);
+        ContentValues score_content = new ContentValues();
 
-            if (cursor == null){  // no data for this user
+        if (cursor == null){  // no data for this user
+            score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
+            score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
+        }else{ // exist data for this user, store higest score
+            int highest_score = Integer.parseInt(cursor.getColumnName(cursor.getColumnCount()-1));
+            if(highest_score < score){
+                String hi_score = score + "";
                 score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
-                score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
-            }else{ // exist data for this user, store higest score
-                int highest_score = Integer.parseInt(cursor.getColumnName(cursor.getColumnCount()-1));
-                if(highest_score < score){
-                    score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
-                    score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
-                }
+                score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, hi_score);
             }
         }
-
-        @Override
-        protected Cursor doInBackground(Void... voids) {
-            SQLiteDatabase db = mDatabase.getReadableDatabase();
-            String sql = "SELECT * FROM " + UsersContract.UserTABLE.TABLE_NAME
-                    + " WHERE " + UsersContract.UserTABLE.USER_NAME + " == "
-                    + user_name;
-            return db.rawQuery(sql, null);
-        }
-    }
-
-    private void saveHighestScore() {
-        // first get data from database
 
 
         ContentValues higest_score = new ContentValues();

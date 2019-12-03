@@ -14,6 +14,6 @@ public class UsersContract {
         public static final String CREATE_TABLE = "CREATE TABLE "
                 + TABLE_NAME + " （"
                 + USER_NAME + " TEXT PRIMARY KEY, "
-                + HIGHEST_SCORE + " String";
+                + HIGHEST_SCORE + " String)";
     }
 }
