@@ -12,7 +12,7 @@ public class UsersContract {
         public static final String HIGHEST_SCORE = "score";
 
         public static final String CREATE_TABLE = "CREATE TABLE "
-                + TABLE_NAME + " （"
+                + TABLE_NAME + " ("
                 + USER_NAME + " TEXT PRIMARY KEY, "
                 + HIGHEST_SCORE + " String)";
     }

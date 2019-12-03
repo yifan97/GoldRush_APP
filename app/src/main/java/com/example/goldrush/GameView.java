@@ -220,29 +220,35 @@ public class GameView extends SurfaceView implements Runnable {
         SQLiteDatabase db = mDatabase.getReadableDatabase();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM");
+        sb.append("SELECT * FROM ");
         sb.append(UsersContract.UserTABLE.TABLE_NAME);
         sb.append(" WHERE ");
         sb.append(UsersContract.UserTABLE.USER_NAME);
-        sb.append(" = ");
-        sb.append(user_name);
-
+        sb.append(" = (?)");
 
         String sql = sb.toString();
 
 
-        Cursor cursor = db.rawQuery(sql, null);
+        Cursor cursor = db.rawQuery(sql, new String[] {user_name});
         ContentValues score_content = new ContentValues();
 
         if (cursor == null){  // no data for this user
             score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
             score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
         }else{ // exist data for this user, store higest score
-            int highest_score = Integer.parseInt(cursor.getColumnName(cursor.getColumnCount()-1));
-            if(highest_score < score){
-                String hi_score = score + "";
+            if(!cursor.moveToNext()){
                 score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
-                score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, hi_score);
+                score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
+            }else{
+                String temp_score = cursor.getColumnName(cursor.getColumnCount()-1);
+                Log.v("TAG", temp_score);
+
+                int highest_score = Integer.parseInt("10");
+                if(highest_score < score){
+                    String hi_score = score + "";
+                    score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
+                    score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, hi_score);
+                }
             }
         }
 
