@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -18,6 +19,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.widget.Toast;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.Random;
 
@@ -47,9 +50,9 @@ public class GameView extends SurfaceView implements Runnable {
         this.context = context;
 
         collect = MediaPlayer.create(this.context, R.raw.collect);
-        collect.setVolume(60, 60);
+        collect.setVolume(10f, 10f);
         lose = MediaPlayer.create(this.context, R.raw.lose);
-        lose.setVolume(60, 60);
+        lose.setVolume(3f, 3f);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             //sound pool
         }else{
@@ -69,9 +72,11 @@ public class GameView extends SurfaceView implements Runnable {
 
         bg1.x = screenX;
 
+        Typeface typeface = ResourcesCompat.getFont(context, R.font.luckiest_guy);
         paint = new Paint();
-        paint.setTextSize(128);
-        paint.setColor(Color.WHITE);
+        paint.setTextSize(60);
+        paint.setColor(Color.BLACK);
+        paint.setTypeface(typeface);
 
         objects = new Object[5];
 
@@ -136,11 +141,11 @@ public class GameView extends SurfaceView implements Runnable {
 
             if(object.x + object.width < 0){
 
-                int bound = (int) (30 * screenRatioX);
+                int bound = (int) (150 * screenRatioX);
                 object.speed = random.nextInt(bound);
 
-                if(object.speed < 10 * screenRatioX){
-                    object.speed = (int) (10 * screenRatioX);
+                if(object.speed < 50 * screenRatioX){
+                    object.speed = (int) (50 * screenRatioX);
                 }
 
                 object.x = screenX;
@@ -196,8 +201,6 @@ public class GameView extends SurfaceView implements Runnable {
                 canvas.drawBitmap(object.getObject(), object.x, object.y, paint);
             }
 
-//            canvas.drawText();
-
             if(isGameOver){
                 isPlaying = false;
                 canvas.drawBitmap(cat.getLose(), cat.x, cat.y, paint);
@@ -208,6 +211,8 @@ public class GameView extends SurfaceView implements Runnable {
                 return;
             }
             canvas.drawBitmap(cat.getCat(), cat.x, cat.y, paint);
+
+            canvas.drawText("Score: " + score, screenX / 2f - 100, 90, paint);
 
             getHolder().unlockCanvasAndPost(canvas);
         }
@@ -252,7 +257,6 @@ public class GameView extends SurfaceView implements Runnable {
             }
         }
 
-
         ContentValues higest_score = new ContentValues();
 
         higest_score.put(UsersContract.UserTABLE.USER_NAME, user_name);
@@ -263,7 +267,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         try{
             Thread.sleep(3000);
-            activity.startActivity(new Intent(activity, Home.class));
+            activity.startActivity(new Intent(activity, HomeTwo.class));
             activity.finish();
         }catch(InterruptedException e){
             e.printStackTrace();

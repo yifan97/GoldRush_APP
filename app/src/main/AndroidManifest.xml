@@ -19,15 +19,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".HomeTwo"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"/>
+
         <activity android:name=".Setting"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden"/>
-
-        <activity android:name=".Login"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden"/>
-
-        <activity android:name=".Signup"
             android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
 

@@ -94,7 +94,7 @@ public class Music extends Service implements MediaPlayer.OnPreparedListener {
     private void play(String music) {
         if (mMediaPlayer == null) {
             mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setVolume(10, 10);
+            mMediaPlayer.setVolume(0.2f, 0.2f);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 AudioAttributes attributes = new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)

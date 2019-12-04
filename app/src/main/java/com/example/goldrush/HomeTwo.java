@@ -27,19 +27,29 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import static com.example.goldrush.Music.ACTION_PAUSE;
+import static com.example.goldrush.Music.ACTION_STOP;
 import static com.example.goldrush.Music.ACTION_PLAY;
 
-public class Home extends AppCompatActivity {
+public class HomeTwo extends AppCompatActivity {
 
     static final int GOOGLE_SIGN = 123;
     FirebaseAuth mAuth;
     GoogleSignInClient mGoogleSignInClient;
+
+    boolean soundOn = true;
+    public ImageButton music;
     String user_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
+        setContentView(R.layout.hometwo);
+
+        Intent intent = new Intent(this, Music.class);
+        intent.setAction(ACTION_PLAY);
+        startService(intent);
+
+        music = findViewById(R.id.sound);
 
         mAuth = FirebaseAuth.getInstance();
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.
@@ -67,14 +77,6 @@ public class Home extends AppCompatActivity {
             }catch (ApiException e){
                 e.printStackTrace();
             }
-            if(resultCode == RESULT_OK){
-                System.out.println("Hello World Result OK");
-            }
-            if (resultCode == RESULT_CANCELED) {
-                System.out.println("Hello World Result CANCELED");
-                Intent intent = new Intent(this, HomeTwo.class);
-                startActivity(intent);
-            }
         }
     }
 
@@ -92,6 +94,7 @@ public class Home extends AppCompatActivity {
                     if(task.isSuccessful()){
                         Log.d("TAG", "signin success");
                         FirebaseUser user = mAuth.getCurrentUser();
+                        //startActivity(new Intent(this, Game.class));
                     }else{
                         Log.d("TAG", "signin failure", task.getException());
                         Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
@@ -102,11 +105,60 @@ public class Home extends AppCompatActivity {
     // When the user clicks a button on the homepage screen
     public void BtnOnClick(View view) {
 
-        // google login
-        if (view.getId() == R.id.googlelogin){
-            // Configure Google Sign In
-            Intent signIntent = mGoogleSignInClient.getSignInIntent();
-            startActivityForResult(signIntent, GOOGLE_SIGN);
+        // Music button
+        if (view.getId() == R.id.sound){
+            ImageButton sound = findViewById(R.id.sound);
+
+            // Turn off the music
+            if (soundOn == true) {
+                sound.setImageResource(R.drawable.nosound);
+                Intent intent = new Intent(this, Music.class);
+                intent.setAction(ACTION_PAUSE);
+                startService(intent);
+                soundOn = false;
+            }
+            // Plays the music
+            else {
+                sound.setImageResource(R.drawable.sound);
+                Intent intent = new Intent(this, Music.class);
+                intent.setAction(ACTION_PLAY);
+                startService(intent);
+                soundOn = true;
+            }
+        }
+        // Setting button
+        else if (view.getId() == R.id.setting) {
+            Intent intent = new Intent(this, Setting.class);
+            startActivity(intent);
+        }
+        // Play button
+        else if (view.getId() == R.id.play) {
+            Intent intent = new Intent(this, GameActivity.class);
+            intent.putExtra("user_name", user_name);
+            startActivity(intent);
+        }
+        // Log out button
+        else if (view.getId() == R.id.logout){
+            // Firebase sign out
+            mAuth.signOut();
+
+            // Google sign out
+            mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                    new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            return;
+                        }
+                    });
+
+            // Go back to Home one
+            Intent music = new Intent(this, Music.class);
+            music.setAction(ACTION_STOP);
+            startService(music);
+
+            Intent home = new Intent(this, Home.class);
+            startActivity(home);
+            finish();
         }
     }
 
