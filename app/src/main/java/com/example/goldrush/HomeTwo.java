@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -29,6 +31,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import static com.example.goldrush.Music.ACTION_PAUSE;
 import static com.example.goldrush.Music.ACTION_STOP;
 import static com.example.goldrush.Music.ACTION_PLAY;
+import android.content.SharedPreferences;
+
 
 public class HomeTwo extends AppCompatActivity {
 
@@ -39,6 +43,8 @@ public class HomeTwo extends AppCompatActivity {
     boolean soundOn = true;
     public ImageButton music;
     String user_name;
+
+    int score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,26 +65,43 @@ public class HomeTwo extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+        SharedPreferences prefs2 = getSharedPreferences("account_score", MODE_PRIVATE);
+
+        SharedPreferences prefs = getSharedPreferences("game", MODE_PRIVATE);
+//        SharedPreferences prefs2 = getSharedPreferences("acount_score", MODE_PRIVATE);
+        SharedPreferences prefs3 = getSharedPreferences("account", MODE_PRIVATE);
+        user_name = prefs3.getString("user", "xuyifan97@gmail.com");
+        int score = prefs2.getInt(user_name, 0);
+//        score = prefs.getInt("highscore", 0);
+        updateHigestScore(score);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode  == GOOGLE_SIGN){
-            Task<GoogleSignInAccount> task = GoogleSignIn
-                    .getSignedInAccountFromIntent(data);
-
-            try{
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                if(account != null){
-                    user_name = account.getEmail();
-                    firebaseAuthWithGoogle(account);
-                }
-            }catch (ApiException e){
-                e.printStackTrace();
-            }
-        }
+    private void updateHigestScore(int score) {
+        TextView tv = findViewById(R.id.highest);
+        tv.setText("Higest Score: " + score);
     }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if(requestCode  == GOOGLE_SIGN){
+//            Task<GoogleSignInAccount> task = GoogleSignIn
+//                    .getSignedInAccountFromIntent(data);
+//
+//            try{
+//                GoogleSignInAccount account = task.getResult(ApiException.class);
+//                if(account != null){
+//                    user_name = account.getEmail();
+//                    firebaseAuthWithGoogle(account);
+//                }
+//            }catch (ApiException e){
+//                e.printStackTrace();
+//            }
+//        }else if(requestCode == 2){
+//            score = data.getIntExtra("score", 5);
+//            updateHigestScore(10);
+//        }
+//    }
 
     @Override
     protected void onStart() {
@@ -135,11 +158,16 @@ public class HomeTwo extends AppCompatActivity {
         else if (view.getId() == R.id.play) {
             Intent intent = new Intent(this, GameActivity.class);
             intent.putExtra("user_name", user_name);
-            startActivity(intent);
+            startActivityForResult(intent, 2);
         }
         // Log out button
         else if (view.getId() == R.id.logout){
             // Firebase sign out
+
+            SharedPreferences prefs = getSharedPreferences("account", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean(user_name, false);
+            editor.commit();
             mAuth.signOut();
 
             // Google sign out

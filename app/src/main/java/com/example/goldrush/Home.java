@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +36,9 @@ public class Home extends AppCompatActivity {
     FirebaseAuth mAuth;
     GoogleSignInClient mGoogleSignInClient;
     String user_name;
+    DBHelper mDatabase;
+    SharedPreferences prefs;
+    SharedPreferences prefs2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,10 @@ public class Home extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+        mDatabase = new DBHelper(this);
+
+        prefs = getSharedPreferences("account", MODE_PRIVATE);
+
     }
 
     @Override
@@ -67,13 +75,23 @@ public class Home extends AppCompatActivity {
             }catch (ApiException e){
                 e.printStackTrace();
             }
+
             if(resultCode == RESULT_OK){
-                System.out.println("Hello World Result OK");
+                Toast.makeText(this, "Welcome! " + user_name, Toast.LENGTH_SHORT).show();
+
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("user", user_name);
+                editor.commit();
+
+                Intent intent = new Intent(this, HomeTwo.class);
+                startActivityForResult(intent, 1);
             }
             if (resultCode == RESULT_CANCELED) {
-                System.out.println("Hello World Result CANCELED");
-                Intent intent = new Intent(this, HomeTwo.class);
-                startActivity(intent);
+                Toast.makeText(this, "Google Login failed", Toast.LENGTH_SHORT).show();
+            }
+        }else if(requestCode == 1){
+            if(resultCode == RESULT_OK) {
+                String higestScore = data.getStringExtra("score");
             }
         }
     }
@@ -90,7 +108,7 @@ public class Home extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task ->{
                     if(task.isSuccessful()){
-                        Log.d("TAG", "signin success");
+                        Log.d("TEST", "signin success ");
                         FirebaseUser user = mAuth.getCurrentUser();
                     }else{
                         Log.d("TAG", "signin failure", task.getException());

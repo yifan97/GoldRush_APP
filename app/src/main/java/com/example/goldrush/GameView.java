@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Canvas;
@@ -41,7 +42,9 @@ public class GameView extends SurfaceView implements Runnable {
     public MediaPlayer lose;
     private int score = 0;
     DBHelper mDatabase;
-    String user_name = "";
+    private SharedPreferences prefs;
+    private SharedPreferences prefs2;
+    private SharedPreferences prefs3;
 
     public GameView(GameActivity activity, int screenX, int screenY, Context context) {
         super(activity);
@@ -53,6 +56,11 @@ public class GameView extends SurfaceView implements Runnable {
         collect.setVolume(10f, 10f);
         lose = MediaPlayer.create(this.context, R.raw.lose);
         lose.setVolume(3f, 3f);
+
+        prefs = activity.getSharedPreferences("game", Context.MODE_PRIVATE);
+        prefs2 = activity.getSharedPreferences("account_score", Context.MODE_PRIVATE);
+        prefs3 = activity.getSharedPreferences("account", Context.MODE_PRIVATE);
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             //sound pool
         }else{
@@ -207,7 +215,6 @@ public class GameView extends SurfaceView implements Runnable {
                 getHolder().unlockCanvasAndPost(canvas);
                 saveHighestScore();
                 waitBeforeExiting();
-                saveHighestScore();
                 return;
             }
             canvas.drawBitmap(cat.getCat(), cat.x, cat.y, paint);
@@ -220,7 +227,21 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void saveHighestScore() {
-        user_name = GameActivity.user_name;
+        String user = prefs3.getString("user","xuyifan97@gmail.com");
+        int database_score = prefs2.getInt(user, 0);
+        if (database_score < score) {
+            SharedPreferences.Editor editor = prefs2.edit();
+            editor.putInt(user, score);
+            editor.commit();
+        }
+
+
+
+
+
+
+
+        String user_name_1 = GameActivity.user_name;
 
         SQLiteDatabase db = mDatabase.getReadableDatabase();
 
@@ -229,20 +250,22 @@ public class GameView extends SurfaceView implements Runnable {
         sb.append(UsersContract.UserTABLE.TABLE_NAME);
         sb.append(" WHERE ");
         sb.append(UsersContract.UserTABLE.USER_NAME);
-        sb.append(" = (?)");
-
+        sb.append(" = ");
+        sb.append("' ");
+        sb.append(user_name_1);
+        sb.append("'");
         String sql = sb.toString();
 
 
-        Cursor cursor = db.rawQuery(sql, new String[] {user_name});
+        Cursor cursor = db.rawQuery(sql, null);
         ContentValues score_content = new ContentValues();
 
         if (cursor == null){  // no data for this user
-            score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
+            score_content.put(UsersContract.UserTABLE.USER_NAME, user_name_1);
             score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
         }else{ // exist data for this user, store higest score
             if(!cursor.moveToNext()){
-                score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
+                score_content.put(UsersContract.UserTABLE.USER_NAME, user_name_1);
                 score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
             }else{
                 String temp_score = cursor.getColumnName(cursor.getColumnCount()-1);
@@ -251,15 +274,15 @@ public class GameView extends SurfaceView implements Runnable {
                 int highest_score = Integer.parseInt("10");
                 if(highest_score < score){
                     String hi_score = score + "";
-                    score_content.put(UsersContract.UserTABLE.USER_NAME, user_name);
-                    score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, hi_score);
+                    score_content.put(UsersContract.UserTABLE.USER_NAME, user_name_1);
+                    score_content.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
                 }
             }
         }
 
         ContentValues higest_score = new ContentValues();
 
-        higest_score.put(UsersContract.UserTABLE.USER_NAME, user_name);
+        higest_score.put(UsersContract.UserTABLE.USER_NAME, user_name_1);
         higest_score.put(UsersContract.UserTABLE.HIGHEST_SCORE, score);
     }
 

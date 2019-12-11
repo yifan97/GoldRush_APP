@@ -3,8 +3,12 @@ package com.example.goldrush;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
+
+import java.io.Serializable;
 
 public class DBHelper extends SQLiteOpenHelper {
 
